@@ -7,12 +7,10 @@ use Exception;
 
 class ProductService
 {
-    public function getAllProducts($limit, $offset)
+    public function getAllProducts($limit)
     {
         try {
             return Query::from('products')
-                ->orderBy('id', 'DESC')
-                ->limit($limit)
                 ->get();
         } catch (Exception $e) {
             throw new Exception("Error retrieving products: " . $e->getMessage());

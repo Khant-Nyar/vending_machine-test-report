@@ -2,35 +2,67 @@
 
 namespace App\Services;
 
+use bootstrap\Framework\Database\Database;
+use Exception;
+
 class AuthService
 {
-    // public function register($username, $password)
-    // {
-    //     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
-    //     $sql = "INSERT INTO users (username, password) VALUES (:username, :password)";
-    //     $this->db->query($sql, ['username' => $username, 'password' => $hashedPassword]);
-    // }
+    protected $validator;
 
-    // public function login($username, $password)
-    // {
-    //     $sql = "SELECT * FROM users WHERE username = :username";
-    //     $user = $this->db->query($sql, ['username' => $username])->fetch();
+    public function __construct()
+    {
+        $this->validator = new Validator();
+    }
 
-    //     if ($user && password_verify($password, $user['password'])) {
-    //         $_SESSION['user_id'] = $user['id'];
-    //         $_SESSION['role'] = $user['role'];
-    //         return true;
-    //     }
-    //     return false;
-    // }
+    public function register(array $data)
+    {
+        $rules = [
+            'username' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+        ];
 
-    // public function checkRole($role)
-    // {
-    //     return isset($_SESSION['role']) && $_SESSION['role'] === $role;
-    // }
+        $errors = $this->validator->validate($rules, $data);
 
-    // public function logout()
-    // {
-    //     session_destroy();
-    // }
+        if (!empty($errors)) {
+            return ['errors' => $errors];
+        }
+
+        $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
+
+        $insertSuccess = Database::from('users')->insert([
+            'username' => $data['username'],
+            'email' => $data['email'],
+            'password' => $hashedPassword,
+            'role' => 'user'
+        ]);
+
+        if (!$insertSuccess) {
+            throw new Exception('Failed to register user. Please try again.');
+        }
+
+        return true;
+    }
+
+    public function login(array $data)
+    {
+        $rules = [
+            'email' => 'required|email',
+            'password' => 'required',
+        ];
+
+        $errors = $this->validator->validate($rules, $data);
+
+        if (!empty($errors)) {
+            return ['errors' => $errors];
+        }
+
+        $user = Database::from('users')->where('email', '=', $data['email'])->first();
+
+        if (!$user || !password_verify($data['password'], $user['password'])) {
+            throw new Exception('Invalid credentials.');
+        }
+
+        return $user;
+    }
 }
