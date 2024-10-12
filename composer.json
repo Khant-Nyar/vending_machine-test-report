@@ -1,0 +1,26 @@
+{
+    "name": "khant-nyar/vending_machine",
+    "description": "Vending Machine COde Test",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "bootstrap\\Framework\\":"bootstrap/Framework"
+        }
+    },
+    "autoload-dev": {
+        "files": [
+            "bootstrap/Framework/functions.php"
+        ],
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Khant-Nyar",
+            "email": "khantnyar.dev@gmail.com"
+        }
+    ],
+    "require": {}
+}
